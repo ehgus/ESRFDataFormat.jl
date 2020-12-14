@@ -1,18 +1,31 @@
 
-const HeaderPattern = Dict(
-    "standard" => ("{\r\n","}\n"),
-    "alternative" => ("\n{\r\n\r\n{\r\n","}\n}\r\n")
+const HeaderPattern = (
+    Standard = (Start = "{\n", End = "}\n"),
+    Alternative1 = (Start = "\n{\r\n", End = "}\n"),
+    Alternative2 = (Start = "\r\n{\r\n", End = "}\r\n")
 )
 
 function Base.read(io::IO,Type{T}) where T<: ESRFData
-    start = readuntil(io,"{";keep=true)
+    start = read(io,Char)
+    format::Tuple{String,String}
     if start == "{"
-        # standard pattern
+        # Standard
+        format = HeaderPattern.Standard
+    elseif start == "\n"
+        # Alternative1
+        format = HeaderPattern.Standard
+    elseif start == "\r"
+        # Alternative2
+        format = HeaderPattern.Standard
     else
-        # alternative patterns
+        # Error later
     end
-
-    headerstring=readuntil(io,"}\n";keep=true)
-    @assert headerstring[end-1:end] == "}\n"
     
+    contents = start*readuntil(io,format[End];keep=true)
+    if contents[begin:length(format[Start])] != format[Start] || contents[end+1-length(format[Start]:end)] != format[End]
+        # Error later
+    end
+    
+    split(contents[length(format[Start])+1:end-length(format[End])],';')
+
 end

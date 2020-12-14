@@ -1,2 +1,0 @@
-JuliaLang is a GitHub organization.
-It has many members.
