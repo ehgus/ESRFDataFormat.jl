@@ -27,23 +27,26 @@ function Base.read(io::IO,::Type{T}) where T<: ESRFData
         # Error later
     end
     
-    Header = Dict(KeyValseperation.(split(contents[length(format.Start)+1:end-length(format.End)],';')[begin:end-1]))
+    header = Dict(KeyValseperation.(split(contents[length(format.Start)+1:end-length(format.End)],';')[begin:end-1]))
     # Array reading
-    if isa(match(r"^Float(Value|IEEE32)?$",Header["DataType"]),RegexMatch)
+    if isa(match(r"^Float(Value|IEEE32)?$",header["DataType"]),RegexMatch)
         Arraytype = Float32 
-    elseif isa(match(r"^(FloatIEEE64|Double(Value)?)$",Header["DataType"]),RegexMatch)
+    elseif isa(match(r"^(FloatIEEE64|Double(Value)?)$",header["DataType"]),RegexMatch)
         Arraytype = Float64
-    elseif isa(match(r"^Signed64$",Header["DataType"]),RegexMatch)
+    elseif isa(match(r"^Signed64$",header["DataType"]),RegexMatch)
         Arraytype = Int64
     else
         # type currently unused maybe
         @assert false
     end
-    # 2 dim for now
-    Body = Array{Arraytype,2}(undef,Header["Dim_1"],Header["Dim_2"])
-    read!(io,Body)
+
+    # 2 dim for now (tmp)
+    data = Array{Arraytype,2}(undef,header["Dim_1"],header["Dim_2"])
+    read!(io,data)
     if !eof(io)
         print("Waring This is not eof")
     end
-    return ESRFData(Header, Body)
+    map!(bswaptoh(header),data,data)
+    
+    ESRFData(header, data)
 end

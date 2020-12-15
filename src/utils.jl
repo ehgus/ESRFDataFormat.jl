@@ -12,3 +12,7 @@ function KeyValseperation(KeyValStr::T) where T <: AbstractString
 
     Key, Valreturn
 end
+
+function bswaptoh(header::Dict)
+    ifelse("ByteOrder" in keys(header) && header["ByteOrder"] == "LowByteFirst", ltoh, ntoh)
+end
