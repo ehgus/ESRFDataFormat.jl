@@ -1,6 +1,11 @@
 module ESRFDataFormat
 
-export ESRFData, read
+using CodecZlib, Dates
+
+export ESRFData
+export read,
+       header,
+       data
 
 include("ESRFData.jl")
 include("io.jl")

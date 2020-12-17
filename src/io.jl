@@ -19,32 +19,23 @@ function Base.read(io::IO,::Type{T}) where T<: ESRFData
         # Alternative2
         format = HeaderPattern.Alternative2
     else
-        # Error later
+        error("Disallowed header")
     end
     
     contents = start*readuntil(io,format.End;keep=true)
     if contents[begin:length(format.Start)] != format.Start || contents[end+1-length(format.Start):end] != format.End
-        # Error later
+        error("Disallowed header")
     end
     
     header = Dict(KeyValseperation.(split(contents[length(format.Start)+1:end-length(format.End)],';')[begin:end-1]))
-    # Array reading
-    if isa(match(r"^Float(Value|IEEE32)?$",header["DataType"]),RegexMatch)
-        Arraytype = Float32 
-    elseif isa(match(r"^(FloatIEEE64|Double(Value)?)$",header["DataType"]),RegexMatch)
-        Arraytype = Float64
-    elseif isa(match(r"^Signed64$",header["DataType"]),RegexMatch)
-        Arraytype = Int64
-    else
-        # type currently unused maybe
-        @assert false
-    end
-
-    # 2 dim for now (tmp)
-    data = Array{Arraytype,2}(undef,header["Dim_1"],header["Dim_2"])
-    read!(io,data)
-    if !eof(io)
-        print("Waring This is not eof")
+    # Array metadata
+    dtype = datatype(header)
+    dsize = datasize(header)
+    data = Array{dtype}(undef,dsize...)
+    newio = datacompressstream(io,header)
+    read!(newio,data)
+    if !eof(newio)
+        println("Waring: This is not eof")
     end
     map!(bswaptoh(header),data,data)
     

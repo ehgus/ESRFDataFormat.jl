@@ -2,3 +2,7 @@ name = "ESRFDataFormat"
 uuid = "59473d32-01ca-43c1-9313-c7321299825e"
 authors = ["Dohyeon Lee <dleh428@kaist.ac.kr>"]
 version = "0.1.0"
+
+[deps]
+CodecZlib = "944b1d66-785c-5afd-91f1-9de20f533193"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
