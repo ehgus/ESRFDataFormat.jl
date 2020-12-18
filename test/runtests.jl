@@ -1,4 +1,4 @@
-using MRC, TranscodingStreams
+using ESRFDataFormat
 using Test
 
 @testset "MRC.jl" begin

@@ -20,7 +20,7 @@ function datatype(header::Dict)
         return UInt8
     elseif !isnothing(match(r"^Signed(16|Short)$", typestr))
         return Int16
-    elseif !isnothing(match(r"^Unsigned(8|Short)$", typestr))
+    elseif !isnothing(match(r"^Unsigned(16|Short)$", typestr))
         return UInt16
     elseif !isnothing(match(r"^Signed(32|Integer|Long)$", typestr))
         return Int32
