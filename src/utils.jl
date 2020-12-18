@@ -10,25 +10,25 @@ function datatype(header::Dict)
         error("header does not contain DataType information")
     end
 
-    if isa(match(r"^Float(Value|IEEE32)?$",typestr),RegexMatch)
+    if !isnothing(match(r"^Float(Value|IEEE32)?$", typestr))
         return Float32
-    elseif isa(match(r"^(FloatIEEE64|Double(Value)?)$",typestr),RegexMatch)
+    elseif !isnothing(match(r"^(FloatIEEE64|Double(Value)?)$", typestr))
         return Float64
-    elseif isa(match(r"^Signed(8|Byte)$",typestr),RegexMatch)
+    elseif !isnothing(match(r"^Signed(8|Byte)$", typestr))
         return Int8
-    elseif isa(match(r"^Unsigned(8|Byte)$",typestr),RegexMatch)
+    elseif !isnothing(match(r"^Unsigned(8|Byte)$", typestr))
         return UInt8
-    elseif isa(match(r"^Signed(16|Short)$",typestr),RegexMatch)
+    elseif !isnothing(match(r"^Signed(16|Short)$", typestr))
         return Int16
-    elseif isa(match(r"^Unsigned(8|Short)$",typestr),RegexMatch)
+    elseif !isnothing(match(r"^Unsigned(8|Short)$", typestr))
         return UInt16
-    elseif isa(match(r"^Signed(32|Integer|Long)$",typestr),RegexMatch)
+    elseif !isnothing(match(r"^Signed(32|Integer|Long)$", typestr))
         return Int32
-    elseif isa(match(r"^Unsigned(32|Integer|Long)$",typestr),RegexMatch)
+    elseif !isnothing(match(r"^Unsigned(32|Integer|Long)$", typestr))
         return UInt32
-    elseif isa(match(r"^Signed64$",typestr),RegexMatch)
+    elseif !isnothing(match(r"^Signed64$", typestr))
         return Int64
-    elseif isa(match(r"^Unsigned64$",typestr),RegexMatch)
+    elseif !isnothing(match(r"^Unsigned64$", typestr))
         return UInt64
     else
         error("Your header requires unsupported data type $(typestr)")
@@ -45,11 +45,11 @@ function datacompressstream(io::IO,header::Dict)
         return io
     end
 
-    if isa(match(r"^(None|UnCompressed|NoSpecificValue)$",compstr),RegexMatch)
+    if !isnothing(match(r"^(None|UnCompressed|NoSpecificValue)$",compstr))
         return io
-    elseif isa(match(r"^Gzip(Compression)?$",compstr),RegexMatch)
+    elseif !isnothing(match(r"^Gzip(Compression)?$",compstr))
         return GzipDecompressorStream(io)
-    elseif isa(match(r"^Z(Compression)?$",compstr),RegexMatch)
+    elseif !isnothing(match(r"^Z(Compression)?$",compstr))
         return ZlibDecompressorStream(io)
     else
         error("unsuppoed compression : $(compstr)")
@@ -59,7 +59,7 @@ end
 function datasize(header::Dict)
     keyset::Array{String,1} =[]
     for key in keys(header)
-        if isa(match(r"^Dim_\d+$",key),RegexMatch)
+        if !isnothing(match(r"^Dim_\d+$",key))
             push!(keyset,key)
         end
     end
@@ -74,13 +74,13 @@ end
 function KeyValseperation(KeyValStr::T) where T <: AbstractString
     #consider using eachmatch
     (Key, Val) = strip.(split(KeyValStr,'='))
-    if isa(match(r"^[+-]?\d+$",Val),RegexMatch)
+    if !isnothing(match(r"^[+-]?\d+$",Val))
         # Integer
         Valreturn = parse(Int128,Val)
-    elseif isa(match(r"^[+-]?(\d*[.])?\d+$",Val),RegexMatch)
+    elseif !isnothing(match(r"^[+-]?(\d*[.])?\d+$",Val))
         # Float
         Valreturn = parse(Float64,Val)
-    elseif isa(match(r"^(19|20)\d\d-(0\d|1[0-2])-(0[1-9]|[12]\d|3[01]) ([01]\d|2[0-4]):[0-5]\d:[0-5]\d$",Val),RegexMatch)
+    elseif !isnothing(match(r"^(19|20)\d\d-(0\d|1[0-2])-(0[1-9]|[12]\d|3[01]) ([01]\d|2[0-4]):[0-5]\d:[0-5]\d$",Val))
         # Date
         Valreturn = Date(Val,"YYYY-mm-dd HH:MM:SS") # Note: julia Date cannot represent nanosecond
     else
