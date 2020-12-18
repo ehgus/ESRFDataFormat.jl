@@ -11,7 +11,7 @@ function datatype(header::Dict)
     end
 
     if isa(match(r"^Float(Value|IEEE32)?$",typestr),RegexMatch)
-        return Float32 
+        return Float32
     elseif isa(match(r"^(FloatIEEE64|Double(Value)?)$",typestr),RegexMatch)
         return Float64
     elseif isa(match(r"^Signed(8|Byte)$",typestr),RegexMatch)
