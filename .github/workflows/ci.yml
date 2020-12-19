@@ -1,8 +1,7 @@
 name: CI
 on:
-  push:
-    branches: [master]
-    tags: [v*]
+  schedule:
+    - cron: 59 23 * * 0
   pull_request:
 
 jobs:

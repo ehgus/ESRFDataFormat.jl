@@ -38,7 +38,7 @@ end
 """
 see header["Compression"] and check its compression type
 """
-function datacompressstream(io::IO,header::Dict)
+function dataDecompressstream(io::IO,header::Dict)
     if "Compression" in keys(header)
         compstr::String = header["Compression"]
     else
@@ -66,7 +66,8 @@ function datasize(header::Dict)
     if Set(["Dim_$(i)" for i in 1:length(keyset)]) != Set(keyset)
         error("dimension metatdata of array is missing or corrupted: $(keyset)")
     end
-    return [header["Dim_$(i)"] for i in 1:length(keyset)]
+    
+    [header["Dim_$(i)"] for i in 1:length(keyset)]
 end
             
 

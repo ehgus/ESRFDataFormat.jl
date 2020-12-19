@@ -32,7 +32,7 @@ function Base.read(io::IO,::Type{T}) where T<: ESRFData
     dtype = datatype(header)
     dsize = datasize(header)
     data = Array{dtype}(undef,dsize...)
-    newio = datacompressstream(io,header)
+    newio = dataDecompressstream(io,header)
     read!(newio,data)
     if !eof(newio)
         println("Waring: This is not eof")
