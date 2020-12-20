@@ -5,6 +5,8 @@ implemenation of ESRF data format (.edf) based on [Keywords for SAXS Data in EDF
 ## Usage
 
 ```julia
+using ESRFDataFormat
+
 io = open("target.edf")
 esrfdata = read(io,ESRFData)
 ```
