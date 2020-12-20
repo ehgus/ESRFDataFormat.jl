@@ -11,8 +11,14 @@ io = open("target.edf")
 esrfdata = read(io,ESRFData)
 ```
 
-## todo
+## development note
 
-- inline implementation (with performance test)
-- write implementation
-- validation checker
+### implementation hypothesis
+
+- file to be read has no defect or ignorable defect
+- file to be written by this package should follows ESRF Data Format rigorously
+
+### todo
+
+- write implementation with validation checker
+- read/write compressed file
