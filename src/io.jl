@@ -1,13 +1,7 @@
 using ESRFDataFormat
 
 
-const HeaderPattern = (
-    Standard = (Start = "{\n", End = "}\n"),
-    Alternative1 = (Start = "\n{\r\n", End = "}\n"),
-    Alternative2 = (Start = "\r\n{\r\n", End = "}\r\n")
-)
-
-function Base.read(io::IO,::Type{T}) where T<: ESRFData
+function Base.read(io::IO,::Type{ESRFData})
     start = read(io,Char)
     if start == '{'
         # Standard
@@ -21,23 +15,26 @@ function Base.read(io::IO,::Type{T}) where T<: ESRFData
     else
         error("Disallowed header")
     end
-    
     contents = start*readuntil(io,format.End;keep=true)
-    if contents[begin:length(format.Start)] != format.Start || contents[end+1-length(format.Start):end] != format.End
+    if isnothing(match(Regex("$(format.End)"),contents))
         error("Disallowed header")
+    startline = match(Regex("^$(format.Start)(EDF_DataFormatVersion)?"),contents)
+    if isnothing(startline)
+        error("Disallowed header")
+    elseif isnothing(startline[1])
+        # DataBlock
+        header = Dict(KeyValseperation.(split(contents[length(format.Start)+1:end-length(format.End)],';')[begin:end-1]))
+        # Array metadata
+        dtype = datatype(header)
+        dsize = datasize(header)
+        data = Array{dtype}(undef,dsize...)
+        newio = dataDecompressstream(io,header)
+        read!(newio,data)
+        map!(bswaptoh(header), data, data)
+        return ESRFDataBlock(header, data)
+    else
+        # GeneralBlock
+        header = Dict(KeyValseperation.(split(contents[length(format.Start)+1:end-length(format.End)],';')[begin:end-1]))
+        ESRFGeneralBlock(header, [read(io, ESRFData) for _ in header["EDF_DataBlocks"]])
     end
-    
-    header = Dict(KeyValseperation.(split(contents[length(format.Start)+1:end-length(format.End)],';')[begin:end-1]))
-    # Array metadata
-    dtype = datatype(header)
-    dsize = datasize(header)
-    data = Array{dtype}(undef,dsize...)
-    newio = dataDecompressstream(io,header)
-    read!(newio,data)
-    if !eof(newio)
-        println("Waring: This is not eof")
-    end
-    map!(bswaptoh(header),data,data)
-    
-    ESRFData(header, data)
 end
