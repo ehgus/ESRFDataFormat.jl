@@ -74,18 +74,34 @@ end
 
 function KeyValseperation(KeyValStr::T) where T <: AbstractString
     #consider using eachmatch
+    str_transformer::Array{Pair{String,String},1} = [
+        "\\r" => "\r",
+        "\\n" => "\n",
+        "\\s" => " ",
+        "\\t" => "\t",
+        "\\v" => "\v",
+        "\\f" => "\f",
+        "\\(" => "{",
+        "\\)" => "}",
+        "\\:" => ";",
+        "\r" => "",
+        "\n" => "",
+    ]
     (Key, Val) = strip.(split(KeyValStr,'='))
     if !isnothing(match(r"^[+-]?\d+$",Val))
-        # Integer
-        Valreturn = parse(Int128,Val)
+        # Long Integer
+        Valreturn = parse(Int64,Val)
     elseif !isnothing(match(r"^[+-]?(\d*[.])?\d+$",Val))
-        # Float
+        # Double
         Valreturn = parse(Float64,Val)
     elseif !isnothing(match(r"^(19|20)\d\d-(0\d|1[0-2])-(0[1-9]|[12]\d|3[01]) ([01]\d|2[0-4]):[0-5]\d:[0-5]\d$",Val))
         # Date
         Valreturn = Date(Val,"YYYY-mm-dd HH:MM:SS") # Note: julia Date cannot represent nanosecond
     else
         Valreturn = Val
+        for i in str_transformer
+            Valreturn = replace(Valreturn,i)
+        end
     end
 
     Key, Valreturn

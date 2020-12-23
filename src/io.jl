@@ -18,6 +18,7 @@ function Base.read(io::IO,::Type{ESRFData})
     contents = start*readuntil(io,format.End;keep=true)
     if isnothing(match(Regex("$(format.End)"),contents))
         error("Disallowed header")
+    end
     startline = match(Regex("^$(format.Start)(EDF_DataFormatVersion)?"),contents)
     if isnothing(startline)
         error("Disallowed header")
@@ -35,6 +36,6 @@ function Base.read(io::IO,::Type{ESRFData})
     else
         # GeneralBlock
         header = Dict(KeyValseperation.(split(contents[length(format.Start)+1:end-length(format.End)],';')[begin:end-1]))
-        ESRFGeneralBlock(header, [read(io, ESRFData) for _ in header["EDF_DataBlocks"]])
+        return ESRFGeneralBlock(header, [read(io, ESRFData) for _ in header["EDF_DataBlocks"]])
     end
 end
